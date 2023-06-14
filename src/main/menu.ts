@@ -4,7 +4,11 @@ import {
   shell,
   BrowserWindow,
   MenuItemConstructorOptions,
+  dialog,
+
 } from 'electron';
+import fs from "fs";
+import StreamZip from 'node-stream-zip';
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
@@ -200,6 +204,25 @@ export default class MenuBuilder {
           {
             label: '&Open',
             accelerator: 'Ctrl+O',
+            click: () => {
+              dialog.showOpenDialog(this.mainWindow, {
+                filters: [{
+                  name: "Kassen-Zip", extensions: ["zip"]
+                }]
+              }).then(result => {
+                const filepaths = result.filePaths;
+
+                if(filepaths.length == 0)
+                  return;
+
+                //Read the filepaths
+                console.log(filepaths)
+                //only read first for now
+                const zip = new StreamZip.async({file: filepaths[0]});
+
+                zip.entryData("lines.csv").then(res => console.log(res))
+              })
+            }
           },
           {
             label: '&Close',
