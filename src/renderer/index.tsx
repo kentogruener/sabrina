@@ -12,13 +12,6 @@ window.electron.ipcRenderer.once('ipc-example', (arg) => {
 });
 window.electron.ipcRenderer.sendMessage('ipc-example', ['ping']);
 
-window.electron.ipcRenderer.on('lines', (lines) => {
-  const edit = (lines as string).split('\r\n');
-  const yes = [];
-
-  edit.forEach((line) => {
-    const split = line.split(';');
-  });
-
-  console.log(edit);
+window.electron.ipcRenderer.on('import-file', (register) => {
+  console.log(register);
 });
