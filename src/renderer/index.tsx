@@ -1,3 +1,4 @@
+import { Register } from 'common/register';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 
@@ -13,5 +14,5 @@ window.electron.ipcRenderer.once('ipc-example', (arg) => {
 window.electron.ipcRenderer.sendMessage('ipc-example', ['ping']);
 
 window.electron.ipcRenderer.on('import-file', (register) => {
-  console.log(register);
+  console.log(register as Register);
 });

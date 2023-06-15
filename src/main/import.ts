@@ -1,39 +1,6 @@
-import { IpcMainEvent, dialog } from 'electron';
+import { Register, TableNames } from 'common/register';
+import { dialog, IpcMainEvent } from 'electron';
 import StreamZip from 'node-stream-zip';
-
-type TableNames =
-  | 'allocation_groups'
-  | 'businesscases'
-  | 'cash_per_currency'
-  | 'cashpointclosing'
-  | 'cashregister'
-  | 'datapayment'
-  | 'itemamounts'
-  | 'lines'
-  | 'lines_vat'
-  | 'location'
-  | 'pa'
-  | 'payment'
-  | 'references'
-  | 'slaves'
-  | 'subitems'
-  | 'transactions'
-  | 'transactions_tse'
-  | 'transactions_vat'
-  | 'tse'
-  | 'vat';
-
-type DataTable = {
-  headers: string[];
-  data: string[][];
-  rowCount: number;
-};
-
-type Register = {
-  data: {
-    [key in TableNames]: DataTable;
-  };
-};
 
 const importFunction = async (event: IpcMainEvent) => {
   const result = await dialog.showOpenDialog({
@@ -61,7 +28,7 @@ const importFunction = async (event: IpcMainEvent) => {
       entry.endsWith('.csv')
     );
 
-    const Register = {
+    const register = {
       data: {},
     } as Register;
 
@@ -77,7 +44,7 @@ const importFunction = async (event: IpcMainEvent) => {
 
         const tableName = file.split('.')[0] as TableNames;
 
-        Register.data[tableName] = {
+        register.data[tableName] = {
           headers,
           data: lineData,
           rowCount: lineData.length,
@@ -85,7 +52,7 @@ const importFunction = async (event: IpcMainEvent) => {
       })
     );
 
-    event.reply('import-file', Register);
+    event.reply('import-file', register);
   });
 };
 
