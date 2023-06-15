@@ -220,8 +220,8 @@ export default class MenuBuilder {
                 //only read first for now
                 const zip = new StreamZip.async({file: filepaths[0]});
 
-                zip.entryData("lines.csv").then(res => console.log(res))
-              })
+                zip.entryData("lines.csv").then(res => this.mainWindow.webContents.send("lines", res.toString("utf8")));
+              }).catch(_ => {});
             }
           },
           {

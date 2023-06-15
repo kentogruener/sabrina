@@ -4,13 +4,15 @@
     ".prettierrc": "jsonc",
     ".eslintignore": "ignore"
   },
-  
+
   "eslint.validate": [
     "javascript",
     "javascriptreact",
     "html",
     "typescriptreact"
   ],
+
+  "prettier.prettierPath": "./node_modules/prettier",
 
   "javascript.validate.enable": false,
   "javascript.format.enable": false,
