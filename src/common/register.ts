@@ -27,6 +27,8 @@ type DataTable = {
 };
 
 export type Register = {
+  filename: string;
+  uuid: string;
   data: {
     [key in TableNames]: DataTable;
   };

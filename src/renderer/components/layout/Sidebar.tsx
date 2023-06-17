@@ -16,7 +16,9 @@ export default function Sidebar() {
   return (
     <SidebarContainer>
       {menu.map((item) => {
-        return <MenuItem title={item.title} href={item.href} />;
+        return (
+          <MenuItem key={item.title} title={item.title} href={item.href} />
+        );
       })}
     </SidebarContainer>
   );

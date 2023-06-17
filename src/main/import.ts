@@ -1,5 +1,6 @@
 import { Register, TableNames } from 'common/register';
-import { dialog, IpcMainEvent } from 'electron';
+import { randomUUID } from 'crypto';
+import { IpcMainEvent, dialog } from 'electron';
 import StreamZip from 'node-stream-zip';
 
 const importFunction = async (event: IpcMainEvent) => {
@@ -29,6 +30,8 @@ const importFunction = async (event: IpcMainEvent) => {
     );
 
     const register = {
+      filename: filepath,
+      uuid: randomUUID(),
       data: {},
     } as Register;
 
