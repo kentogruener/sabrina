@@ -1,7 +1,11 @@
+import Database from 'better-sqlite3';
 import { Register, TableNames } from 'common/register';
 import { randomUUID } from 'crypto';
-import { IpcMainEvent, dialog } from 'electron';
+import { dialog, IpcMainEvent } from 'electron';
 import StreamZip from 'node-stream-zip';
+
+const db = new Database('registers.db', {});
+db.pragma('journal_mode = WAL');
 
 const importFunction = async (event: IpcMainEvent) => {
   const result = await dialog.showOpenDialog({
