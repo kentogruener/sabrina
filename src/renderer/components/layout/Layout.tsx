@@ -33,4 +33,6 @@ const PageContainer = styled.div`
   grid-area: content;
 
   background-color: #ffffff;
+
+  overflow: auto;
 `;
