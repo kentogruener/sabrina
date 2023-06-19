@@ -1,8 +1,8 @@
 import Database from 'better-sqlite3';
+import { ListTableNames, Register, TableNames } from 'common/register';
 import { randomUUID } from 'crypto';
 import { IpcMainEvent, dialog } from 'electron';
 import StreamZip from 'node-stream-zip';
-import { ListTableNames, Register, TableNames } from '../common/register';
 
 const db = new Database('registers.db', {});
 db.pragma('journal_mode = WAL');
@@ -23,6 +23,9 @@ const importFunction = async (event: IpcMainEvent) => {
 
   if (filepaths.length === 0) return;
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const test = db.name;
+
   filepaths.forEach(async (filepath) => {
     // eslint-disable-next-line new-cap
     const zip = new StreamZip.async({ file: filepath });
@@ -42,14 +45,25 @@ const importFunction = async (event: IpcMainEvent) => {
     await Promise.all(
       files.map(async (file) => {
         const filename = file.split('.')[0];
+
+        // Skip all unwanted files
         if (!ListTableNames.includes(filename)) return;
+        // Convert to type to satisfy TS
         const tableName = filename as TableNames;
 
+        // Get data by filepath of .csv file
         const data = await zip.entryData(file);
+
+        // Convert to string
         const stringified = data.toString('utf8');
+
+        // Split by line
         const rows = stringified.split('\r\n');
+
+        // Split header and data
         const [header, ...lines] = rows;
 
+        // Split header and data by ;
         const headers = header.split(';');
         const lineData = lines.map((line) => line.split(';'));
 
