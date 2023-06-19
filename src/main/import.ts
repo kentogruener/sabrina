@@ -1,8 +1,8 @@
 import Database from 'better-sqlite3';
-import { Register, TableNames } from 'common/register';
 import { randomUUID } from 'crypto';
-import { dialog, IpcMainEvent } from 'electron';
+import { IpcMainEvent, dialog } from 'electron';
 import StreamZip from 'node-stream-zip';
+import { ListTableNames, Register, TableNames } from '../common/register';
 
 const db = new Database('registers.db', {});
 db.pragma('journal_mode = WAL');
@@ -41,6 +41,10 @@ const importFunction = async (event: IpcMainEvent) => {
 
     await Promise.all(
       files.map(async (file) => {
+        const filename = file.split('.')[0];
+        if (!ListTableNames.includes(filename)) return;
+        const tableName = filename as TableNames;
+
         const data = await zip.entryData(file);
         const stringified = data.toString('utf8');
         const rows = stringified.split('\r\n');
@@ -48,8 +52,6 @@ const importFunction = async (event: IpcMainEvent) => {
 
         const headers = header.split(';');
         const lineData = lines.map((line) => line.split(';'));
-
-        const tableName = file.split('.')[0] as TableNames;
 
         register.data[tableName] = {
           headers,
