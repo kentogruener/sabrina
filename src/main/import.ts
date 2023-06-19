@@ -1,11 +1,8 @@
-import Database from 'better-sqlite3';
 import { Register, TableNames } from 'common/register';
 import { randomUUID } from 'crypto';
 import { dialog, IpcMainEvent } from 'electron';
 import StreamZip from 'node-stream-zip';
-
-const db = new Database('registers.db', {});
-db.pragma('journal_mode = WAL');
+import db from './database';
 
 const importFunction = async (event: IpcMainEvent) => {
   const result = await dialog.showOpenDialog({
@@ -22,6 +19,9 @@ const importFunction = async (event: IpcMainEvent) => {
   const filepaths = result.filePaths;
 
   if (filepaths.length === 0) return;
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const test = db.name;
 
   filepaths.forEach(async (filepath) => {
     // eslint-disable-next-line new-cap
