@@ -3,89 +3,201 @@ import Database from 'better-sqlite3';
 const db = new Database('registers.db', {});
 db.pragma('journal_mode = WAL');
 
-// TODO decide which tables are really needed
+// CREATE events table
 db.exec(
-  'CREATE TABLE IF NOT EXISTS allocation_groups (uuid BLOB NOT NULL, register_id TEXT, timestamp TEXT, nr INTEGER, bon INTEGER, comment TEXT, PRIMARY KEY(register_id, nr, bon))'
+  `CREATE TABLE IF NOT EXISTS events (
+    uuid BLOB NOT NULL PRIMARY KEY,
+    name TEXT
+  )`
 );
 
+// CREATE registers table
 db.exec(
-  'CREATE TABLE IF NOT EXISTS businesscases (uuid BLOB NOT NULL, register_id TEXT, timestamp TEXT, nr INTEGER, type TEXT, name TEXT, agency INTEGER, ust_key INTEGER, brutto REAL, netto REAL, ust REAL, PRIMARY KEY(register_id, nr, ust_key))'
+  `CREATE TABLE IF NOT EXISTS registers (
+    uuid BLOB NOT NULL,
+    name TEXT,
+
+    PRIMARY KEY(uuid)
+  )`
 );
 
+// CREATE businesscases table
 db.exec(
-  'CREATE TABLE IF NOT EXISTS cash_per_currency (uuid BLOB NOT NULL, register_id TEXT, timestamp TEXT, nr INTEGER, currency TEXT, value REAL, PRIMARY KEY(register_id, nr))'
+  `CREATE TABLE IF NOT EXISTS businesscases (
+    uuid BLOB NOT NULL PRIMARY KEY,
+    event_id BLOB NOT NULL REFERENCES events(uuid),
+    register_id BLOB NOT NULL REFERENCES registers(uuid),
+
+    Z_KASSE_ID TEXT,
+    Z_ERSTELLUNG TEXT,
+    Z_NR TEXT,
+    GV_TYP TEXT,
+    GV_NAME TEXT,
+    AGENTUR_ID TEXT,
+    UST_SCHLUESSEL TEXT,
+    Z_UMS_BRUTTO TEXT,
+    Z_UMS_NETTO TEXT,
+    Z_UST TEXT
+  )`
 );
 
+// CREATE cashpointclosing table
 db.exec(
-  'CREATE TABLE IF NOT EXISTS cashpointclosing (uuid BLOB NOT NULL, register_id TEXT, timestamp TEXT, nr INTEGER, day TEXT, start_id INTEGER, end_id INTEGER, payment REAL, bar_payment REAL, PRIMARY KEY(register_id, nr))'
+  `CREATE TABLE IF NOT EXISTS cashpointclosing (
+    uuid BLOB NOT NULL PRIMARY KEY,
+    event_id BLOB NOT NULL REFERENCES events(uuid),
+    register_id BLOB NOT NULL REFERENCES registers(uuid),
+
+    Z_KASSE_ID TEXT,
+    Z_ERSTELLUNG TEXT,
+    Z_NR TEXT,
+    Z_BUCHUNGSTAG TEXT,
+    TAXONOMIE_VERSION TEXT,
+    Z_START_ID TEXT,
+    Z_ENDE_ID TEXT,
+    NAME TEXT,
+    STRASSE TEXT,
+    PLZ TEXT,
+    ORT TEXT,
+    LAND TEXT,
+    STNR TEXT,
+    USTID TEXT,
+    Z_SE_ZAHLUNGEN TEXT,
+    Z_SE_BARZAHLUNGEN TEXT,
+    BLUEPOS_EXPORT_VERSION TEXT
+  )`
 );
 
+// CREATE lines table
 db.exec(
-  'CREATE TABLE IF NOT EXISTS datapayment (uuid BLOB NOT NULL, register_id TEXT, timestamp TEXT, nr INTEGER, bon INTEGER, type TEXT, code TEXT, value REAL, basis_value REAL, PRIMARY KEY(register_id, nr))'
-);
-// TODO no data
-/* db.exec(
-    'CREATE TABLE IF NOT EXISTS itemamounts (uuid BLOB NOT NULL, register_id TEXT, timestamp TEXT, nr INTEGER, bon INTEGER, type TEXT, code TEXT, value REAL, basis_value REAL, PRIMARY KEY(register_id, nr))'
-  );
-*/
+  `CREATE TABLE IF NOT EXISTS lines (
+    uuid BLOB NOT NULL PRIMARY KEY,
+    event_id BLOB NOT NULL REFERENCES events(uuid),
+    register_id BLOB NOT NULL REFERENCES registers(uuid),
 
-db.exec(
-  'CREATE TABLE IF NOT EXISTS lines (uuid BLOB NOT NULL, register_id TEXT, timestamp TEXT, nr INTEGER, bon INTEGER, pos_line INTEGER, voucher TEXT, description TEXT, terminal_id TEXT, gv_type TEXT, gv_name TEXT, inhouse TEXT, storno INTEGER, agency INTEGER, art_nr INTEGER, gtin TEXT, warengr_id TEXT, warengr TEXT, amount REAL, factor REAL, unit TEXT, stk REAL, freetext TEXT, PRIMARY KEY(register_id, nr))'
-);
-
-db.exec(
-  'CREATE TABLE IF NOT EXISTS lines_vat (uuid BLOB NOT NULL, register_id TEXT, timestamp TEXT, nr INTEGER, bon INTEGER, pos_line INTEGER, ust_key INTEGER, brutto REAL, netto REAL, ust TEXT, PRIMARY KEY(register_id, nr))'
-);
-
-// TODO is location data needed
-/* db.exec(
-    'CREATE TABLE IF NOT EXISTS location (uuid BLOB NOT NULL, register_id TEXT, timestamp TEXT, nr INTEGER, bon INTEGER, type TEXT, code TEXT, value REAL, basis_value REAL, PRIMARY KEY(register_id, nr))'
-  );
-  */
-
-// TODO no data
-/*  db.exec(
-    'CREATE TABLE IF NOT EXISTS pa (uuid BLOB NOT NULL, register_id TEXT, timestamp TEXT, nr INTEGER, bon INTEGER, type TEXT, code TEXT, value REAL, basis_value REAL, PRIMARY KEY(register_id, nr))'
-  );
-  */
-
-db.exec(
-  'CREATE TABLE IF NOT EXISTS payment (uuid BLOB NOT NULL, register_id TEXT, timestamp TEXT, nr INTEGER, type TEXT, name TEXT, value REAL, included_payment_types TEXT, PRIMARY KEY(register_id, nr))'
-);
-
-db.exec(
-  'CREATE TABLE IF NOT EXISTS refs (uuid BLOB NOT NULL, register_id TEXT, timestamp TEXT, nr INTEGER, bon INTEGER, pos_line INTEGER, ref_type TEXT, ref_name REAL, ref_datum TEXT, ref_register_id TEXT, ref_nr INTEGER, ref_bon INTEGER, PRIMARY KEY(register_id, nr))'
+    Z_KASSE_ID TEXT,
+    Z_ERSTELLUNG TEXT,
+    Z_NR TEXT,
+    BON_ID TEXT,
+    POS_ZEILE TEXT,
+    GUTSCHEIN_NR TEXT,
+    ARTIKELTEXT TEXT,
+    POS_TERMINAL_ID TEXT,
+    GV_TYP TEXT,
+    GV_NAME TEXT,
+    INHAUS TEXT,
+    P_STORNO TEXT,
+    AGENTUR_ID TEXT,
+    ART_NR TEXT,
+    GTIN TEXT,
+    WARENGR_ID TEXT,
+    WARENGR TEXT,
+    MENGE TEXT,
+    FAKTOR TEXT,
+    EINHEIT TEXT,
+    STK_BR TEXT,
+    FREE_TEXT_FOR_ITEM TEXT
+  )`
 );
 
-// TODO do later
-/* db.exec(
-    'CREATE TABLE IF NOT EXISTS slaves (uuid BLOB NOT NULL, register_id TEXT, timestamp TEXT, nr INTEGER, bon INTEGER, pos_line INTEGER, ust_key INTEGER, brutto REAL, netto REAL, ust TEXT, PRIMARY KEY(register_id, nr))'
-  );
-*/
-
-// TODO no data
-/* db.exec(
-    'CREATE TABLE IF NOT EXISTS subitems (uuid BLOB NOT NULL, register_id TEXT, timestamp TEXT, nr INTEGER, bon INTEGER, pos_line INTEGER, ust_key INTEGER, brutto REAL, netto REAL, ust TEXT, PRIMARY KEY(register_id, nr))'
-  );
-  */
-
+// CREATE lines_vat table
 db.exec(
-  'CREATE TABLE IF NOT EXISTS transactions (uuid BLOB NOT NULL, register_id TEXT, timestamp TEXT, nr INTEGER, bon INTEGER, tse INTEGER, tse_tanr TEXT, tse_ta_start TEXT, tse_ta_end TEXT, tsa_ta_vorgang TEXT, tse_ta_sigz TEXT, tse_ta_sig TEXT, tse_ta_error TEXT, tse_vorgangsdaten TEXT, PRIMARY KEY(register_id, nr))'
+  `CREATE TABLE IF NOT EXISTS lines_vat (
+    uuid BLOB NOT NULL PRIMARY KEY,
+    event_id BLOB NOT NULL REFERENCES events(uuid),
+    register_id BLOB NOT NULL REFERENCES registers(uuid),
+
+    Z_KASSE_ID TEXT,
+    Z_ERSTELLUNG TEXT,
+    Z_NR TEXT,
+    BON_ID TEXT,
+    POS_ZEILE TEXT,
+    UST_SCHLUESSEL TEXT,
+    POS_BRUTTO TEXT,
+    POS_NETTO TEXT,
+    POS_UST TEXT
+  )`
 );
 
+// CREATE payments table
 db.exec(
-  'CREATE TABLE IF NOT EXISTS transaction_tse (uuid BLOB NOT NULL, register_id TEXT, timestamp TEXT, nr INTEGER, bon INTEGER, pos_line INTEGER, ust_key INTEGER, brutto REAL, netto REAL, ust TEXT, PRIMARY KEY(register_id, nr))'
+  `CREATE TABLE IF NOT EXISTS payment (
+    uuid BLOB NOT NULL PRIMARY KEY,
+    event_id BLOB NOT NULL REFERENCES events(uuid),
+    register_id BLOB NOT NULL REFERENCES registers(uuid),
+
+    Z_KASSE_ID TEXT,
+    Z_ERSTELLUNG TEXT,
+    Z_NR TEXT,
+    ZAHLART_TYP TEXT,
+    ZAHLART_NAME TEXT,
+    ZAHLART_BETRAG TEXT,
+    INCLUDED_PAYMENT_TYPE_NAMES TEXT
+  )`
 );
 
+// CREATE transactions table
 db.exec(
-  'CREATE TABLE IF NOT EXISTS transaction_vat (uuid BLOB NOT NULL, register_id TEXT, timestamp TEXT, nr INTEGER, bon INTEGER, ust_key INTEGER, brutto REAL, netto REAL, ust TEXT, PRIMARY KEY(register_id, nr))'
+  `CREATE TABLE IF NOT EXISTS transactions (
+    uuid BLOB NOT NULL PRIMARY KEY,
+    event_id BLOB NOT NULL REFERENCES events(uuid),
+    register_id BLOB NOT NULL REFERENCES registers(uuid),
+
+    Z_KASSE_ID TEXT,
+    Z_ERSTELLUNG TEXT,
+    Z_NR TEXT,
+    BON_ID TEXT,
+    BON_NR TEXT,
+    BON_TYP TEXT,
+    BON_NAME TEXT,
+    TERMINAL_ID TEXT,
+    BON_STORNO TEXT,
+    BON_START TEXT,
+    BON_ENDE TEXT,
+    BEDIENER_ID TEXT,
+    BEDIENER_NAME TEXT,
+    UMS_BRUTTO TEXT,
+    KUNDE_NAME TEXT,
+    KUNDE_ID TEXT,
+    KUNDE_TYP TEXT,
+    KUNDE_STRASSE TEXT,
+    KUNDE_PLZ TEXT,
+    KUNDE_ORT TEXT,
+    KUNDE_LAND TEXT,
+    KUNDE_USTID TEXT,
+    BON_NOTIZ TEXT,
+    AUFRECHNUNG_NR TEXT,
+    VORGANG_NR TEXT,
+    INVOICE_NUMBER TEXT,
+    INVOICE_NUMBER_TRAINING TEXT,
+    BELEG_NUMBER TEXT,
+    BELEG_NUMBER_TRAINING TEXT,
+    CHANGE_OF_PAYMENT TEXT,
+    ERROR_INDENT TEXT
+  )`
 );
 
+// CREATE transactions_tse table
 db.exec(
-  'CREATE TABLE IF NOT EXISTS tse (uuid BLOB NOT NULL, register_id TEXT, timestamp TEXT, nr INTEGER, tse_id TEXT, tse_serial TEXT, tse_sig_algo TEXT, tse_time TEXT, tse_pd_encoding TEXT, tse_public_key TEXT, tse_certificate_1 TEXT, tse_certificate_2 TEXT, PRIMARY KEY(register_id, nr))'
+  `CREATE TABLE IF NOT EXISTS transactions_tse (
+    uuid BLOB NOT NULL PRIMARY KEY,
+    event_id BLOB NOT NULL REFERENCES events(uuid),
+    register_id BLOB NOT NULL REFERENCES registers(uuid),
+
+    Z_KASSE_ID TEXT,
+    Z_ERSTELLUNG TEXT,
+    Z_NR TEXT,
+    BON_ID TEXT,
+    TSE_ID TEXT,
+    TSE_TANR TEXT,
+    TSE_TA_START TEXT,
+    TSE_TA_ENDE TEXT,
+    TSE_TA_VORGANGSART TEXT,
+    TSE_TA_SIGZ TEXT,
+    TSE_TA_SIG TEXT,
+    TSE_TA_FEHLER TEXT,
+    TSE_VORGANGSDATEN TEXT
+  )`
 );
 
-db.exec(
-  'CREATE TABLE IF NOT EXISTS vat (uuid BLOB NOT NULL, register_id TEXT, timestamp TEXT, nr INTEGER, ust_key INTEGER, ust_satz TEXT ust_beschr TEXT, custom_in_bluepos_used_vat TEXT, PRIMARY KEY(register_id, nr))'
-);
 export default db;

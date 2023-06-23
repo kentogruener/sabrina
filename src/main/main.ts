@@ -12,7 +12,9 @@ import { BrowserWindow, app, ipcMain, shell } from 'electron';
 import log from 'electron-log';
 import { autoUpdater } from 'electron-updater';
 import path from 'path';
-import importFunction from './import';
+import importFunction from './functions/import';
+import { runQuery } from './functions/run-query';
+import writeToDB from './functions/write-to-db';
 import { resolveHtmlPath } from './util';
 
 class AppUpdater {
@@ -32,6 +34,8 @@ ipcMain.on('ipc-example', async (event, arg) => {
 });
 
 ipcMain.on('import-file', importFunction);
+ipcMain.on('run-sql', runQuery);
+ipcMain.on('write-to-db', writeToDB);
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
@@ -73,13 +77,14 @@ const createWindow = async () => {
 
   mainWindow = new BrowserWindow({
     show: false,
-    width: 1024,
-    height: 728,
+    width: 1920,
+    height: 1080,
     icon: getAssetPath('icon.png'),
     webPreferences: {
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js'),
+      nodeIntegration: true,
     },
   });
 

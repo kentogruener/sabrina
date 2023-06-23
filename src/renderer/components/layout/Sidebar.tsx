@@ -7,8 +7,16 @@ const menu = [
     href: '/',
   },
   {
-    title: 'Import',
-    href: '/import',
+    title: 'Events',
+    href: '/events',
+  },
+  {
+    title: 'Registers',
+    href: '/registers',
+  },
+  {
+    title: 'SQL Query',
+    href: '/sql-query',
   },
 ];
 

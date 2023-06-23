@@ -1,4 +1,4 @@
-import { Register } from 'common/register';
+import { Register } from 'common/tables';
 import { create } from 'zustand';
 
 interface AppState {

@@ -3,7 +3,9 @@ import 'typeface-pacifico/index.css';
 import './App.css';
 import Layout from './components/layout/Layout';
 import Dashboard from './pages/Dashboard';
-import Import from './pages/Import';
+import Events from './pages/Events';
+import Registers from './pages/Registers';
+import SQLQuery from './pages/SQL-Query';
 
 export default function App() {
   return (
@@ -11,7 +13,9 @@ export default function App() {
       <Layout>
         <Routes>
           <Route path="/" element={<Dashboard />} />
-          <Route path="/import" element={<Import />} />
+          <Route path="/events" element={<Events />} />
+          <Route path="/registers" element={<Registers />} />
+          <Route path="/sql-query" element={<SQLQuery />} />
         </Routes>
       </Layout>
     </Router>

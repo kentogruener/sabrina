@@ -1,7 +1,5 @@
-import { Register } from 'common/register';
 import { createRoot } from 'react-dom/client';
 import App from './App';
-import useAppStore from './store/AppStore';
 
 const container = document.getElementById('root') as HTMLElement;
 const root = createRoot(container);
@@ -13,8 +11,3 @@ window.electron.ipcRenderer.once('ipc-example', (arg) => {
   console.log(arg);
 });
 window.electron.ipcRenderer.sendMessage('ipc-example', ['ping']);
-
-window.electron.ipcRenderer.on('import-file', (register) => {
-  console.log(register as Register);
-  useAppStore.getState().addRegister(register as Register);
-});
